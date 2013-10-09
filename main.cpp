@@ -13,16 +13,17 @@ vec f(vec A, Planet **B);
 double kin_energy(vec A, Planet **B);
 double pot_energy(vec A, Planet **B);
 double ang_mom(vec A, Planet **B);
+double lin_mom(Planet **B);
 
 // number of objects
-int n = 10;
+int n = 2;
 
 int main()
 {
     // initialization
     double t_min = 0.0;
-    double t_max = 500.0;
-    int N = 100000;
+    double t_max = 50.0;
+    int N = 10000;
     double h = (t_max - t_min)/N;
     double h2 = h/2.0;
 
@@ -37,7 +38,7 @@ int main()
     Planet *Saturn = new Planet(9.582, 0.0, 0.0, 0.651*pi, 5.68e26);
     Planet *Uranus = new Planet(19.20, 0.0, 0.0, 0.456*pi, 8.68e25);
     Planet *Neptune = new Planet(30.05, 0.0, 0.0, 0.362*pi, 1.02e26);
-    Planet *Pluto = new Planet(39.24, 0.0, 0.0, 0.315*pi, 1.31e22);
+    Planet *Pluto = new Planet(48.494, 0.0, 0.0, 0.315*pi, 1.31e22);
 
     // declaring vectors
     // A is the system state vector
@@ -69,6 +70,12 @@ int main()
         B[9] = Pluto;
         break;
     }
+
+    // calculating total linear momentum of planets and setting moment of Sun to the negative of that sum (when n = 10)
+    //if (n == 10) {
+    double p_tot = lin_mom(B);
+    Sun->vy0 = -p_tot/Sun->M;
+    //}
 
     // filling A, has to be the same dimension as dAdt (dim = 4*n)
     for (int i=0; i<n; i++) {
@@ -195,7 +202,12 @@ double ang_mom(vec A, Planet **B)
 
 }
 
-
+double lin_mom(Planet **B)
+{
+    double p_tot = 0.0;
+    for (int i=1; i<n; i++) p_tot += B[i]->M*sqrt(pow(B[i]->vx0,2) + pow(B[i]->vy0,2));
+    return p_tot;
+}
 
 
 
