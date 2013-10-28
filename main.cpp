@@ -16,29 +16,29 @@ double ang_mom(vec A, Planet **B);
 double lin_mom(Planet **B);
 
 // number of objects
-int n = 2;
+int n = 10;
 
 int main()
 {
     // initialization
     double t_min = 0.0;
-    double t_max = 50.0;
-    int N = 10000;
+    double t_max = 500.0;
+    int N = 75000;
     double h = (t_max - t_min)/N;
     double h2 = h/2.0;
 
     // make pointers to planet objects
     // data from: http://nssdc.gsfc.nasa.gov/planetary/factsheet/
     Planet *Sun = new Planet(0.0, 0.0, 0.0, 0.0, MSun);
-    Planet *Mercury = new Planet(0.387, 0.0, 0.0, 3.215*pi, 3.3e23);
+    Planet *Mercury = new Planet(0.387, 0.0, 0.0, 3.215*pi, 2.4e23);
     Planet *Venus = new Planet(0.723, 0.0, 0.0, 2.345*pi, 4.87e24);
     Planet *Earth = new Planet(1.0, 0.0, 0.0, 2.0*pi, 5.97e24);
-    Planet *Mars = new Planet(1.523, 0.0, 0.0, 1.617*pi, 6.42e23);
+    Planet *Mars = new Planet(1.523, 0.0, 0.0, 1.617*pi, 6.6e23);
     Planet *Jupiter = new Planet(5.205, 0.0, 0.0, 0.879*pi, 1.898e27);
-    Planet *Saturn = new Planet(9.582, 0.0, 0.0, 0.651*pi, 5.68e26);
-    Planet *Uranus = new Planet(19.20, 0.0, 0.0, 0.456*pi, 8.68e25);
-    Planet *Neptune = new Planet(30.05, 0.0, 0.0, 0.362*pi, 1.02e26);
-    Planet *Pluto = new Planet(48.494, 0.0, 0.0, 0.315*pi, 1.31e22);
+    Planet *Saturn = new Planet(9.54, 0.0, 0.0, 0.651*pi, 5.5e26);
+    Planet *Uranus = new Planet(19.19, 0.0, 0.0, 0.456*pi, 8.8e25);
+    Planet *Neptune = new Planet(30.06, 0.0, 0.0, 0.362*pi, 1.03e26);
+    Planet *Pluto = new Planet(39.53, 0.0, 0.0, 0.315*pi, 1.31e22);
 
     // declaring vectors
     // A is the system state vector
@@ -48,15 +48,18 @@ int main()
     Planet **B = new Planet*[n];
 
     switch(n) {
+    // two-body system
     case 2:
         B[0] = Sun;
         B[1] = Earth;
         break;
+    // three-body system
     case 3:
         B[0] = Sun;
         B[1] = Earth;
         B[2] = Jupiter;
         break;
+    // solar system
     case 10:
         B[0] = Sun;
         B[1] = Mercury;
@@ -71,11 +74,10 @@ int main()
         break;
     }
 
-    // calculating total linear momentum of planets and setting moment of Sun to the negative of that sum (when n = 10)
-    //if (n == 10) {
+    // calculating total linear momentum of planets and setting moment of Sun to the negative of that sum
+
     double p_tot = lin_mom(B);
     Sun->vy0 = -p_tot/Sun->M;
-    //}
 
     // filling A, has to be the same dimension as dAdt (dim = 4*n)
     for (int i=0; i<n; i++) {
@@ -100,6 +102,7 @@ int main()
     for (int i=0; i<n; i++) outFile1 << A(4*i) << " " << A(4*i+1) << " ";
     outFile1 << endl;
 
+    outFile2 << t_max << endl;
     outFile2 << K << " " << U << " " << Lz << endl;
 
     // RK4 vectorized
@@ -202,6 +205,7 @@ double ang_mom(vec A, Planet **B)
 
 }
 
+// funciton to find the total linear momentum of the planets
 double lin_mom(Planet **B)
 {
     double p_tot = 0.0;
